@@ -1,7 +1,8 @@
-// ignore_for_file: avoid_unnecessary_containers
+// ignore_for_file: avoid_unnecessary_containers, prefer_const_constructors
 
 import 'package:flutter/material.dart';
 import 'package:practice_5/model/post.dart';
+import 'package:practice_5/services/remote_resources.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -20,8 +21,13 @@ class _HomePageState extends State<HomePage> {
     super.initState();
   }
 
-  getData() {
-    // post = await ;
+  getData() async {
+    post = await RemoteServices().getPosts();
+    if (post != null) {
+      setState(() {
+        isLoaded = true;
+      });
+    }
   }
 
   @override
@@ -31,13 +37,39 @@ class _HomePageState extends State<HomePage> {
         title: const Text('Posts'),
         centerTitle: true,
       ),
-      body: ListView.builder(
-        itemCount: 10,
-        itemBuilder: (context, index) {
-          return Container(
-            child: const Text('he'),
-          );
-        },
+      body: Visibility(
+        visible: isLoaded,
+        replacement: Center(child: const CircularProgressIndicator()),
+        child: ListView.builder(
+          itemCount: post?.length,
+          itemBuilder: (context, index) {
+            return Container(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    post![index].title,
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                    style: TextStyle(
+                      fontSize: 24,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  Text(
+                    post![index].body ?? '',
+                    maxLines:3,
+                    overflow: TextOverflow.ellipsis,
+                    style: TextStyle(
+                      fontSize: 24,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ), 
+                ],
+              ),
+            );
+          },
+        ),
       ),
     );
   }
